@@ -29,6 +29,8 @@ public class MainActivity extends AppCompatActivity {
         int REQUEST_CODE = 99;
         int nothing = 0;
         int nothing2 = 0;
+        int nothing3 = 0;
+        int nothing4 = 0;
         int preference = ScanConstants.OPEN_MEDIA;
         Intent intent = new Intent(this, com.scanlibrary.ScanActivity.class);
         intent.putExtra(ScanConstants.OPEN_INTENT_PREFERENCE, preference);
