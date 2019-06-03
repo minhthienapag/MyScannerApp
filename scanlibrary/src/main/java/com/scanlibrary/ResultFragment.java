@@ -8,6 +8,7 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -96,6 +97,9 @@ public class ResultFragment extends Fragment {
                         Uri uri = Utils.getUri(getActivity(), bitmap);
                         data.putExtra(ScanConstants.SCANNED_RESULT, uri);
                         getActivity().setResult(Activity.RESULT_OK, data);
+
+                        Log.e("test", "ResultFragment >> DoneButtonClickListener");
+
                         original.recycle();
                         System.gc();
                         getActivity().runOnUiThread(new Runnable() {

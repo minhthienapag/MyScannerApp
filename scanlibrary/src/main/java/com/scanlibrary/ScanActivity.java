@@ -7,6 +7,7 @@ import android.content.ComponentCallbacks2;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 
 /**
  * Created by jhansi on 28/03/15.
@@ -21,6 +22,8 @@ public class ScanActivity extends Activity implements IScanner, ComponentCallbac
     }
 
     private void init() {
+        Log.e("test","ScanActivity >> init");
+
         PickImageFragment fragment = new PickImageFragment();
         Bundle bundle = new Bundle();
         bundle.putInt(ScanConstants.OPEN_INTENT_PREFERENCE, getPreferenceContent());
@@ -29,6 +32,8 @@ public class ScanActivity extends Activity implements IScanner, ComponentCallbac
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.add(R.id.content, fragment);
         fragmentTransaction.commit();
+
+        Log.e("test","ScanActivity >> last init");
     }
 
     protected int getPreferenceContent() {
@@ -37,6 +42,8 @@ public class ScanActivity extends Activity implements IScanner, ComponentCallbac
 
     @Override
     public void onBitmapSelect(Uri uri) {
+        Log.e("test","ScanActivity >> onBitmapSelect");
+
         ScanFragment fragment = new ScanFragment();
         Bundle bundle = new Bundle();
         bundle.putParcelable(ScanConstants.SELECTED_BITMAP, uri);
@@ -46,10 +53,14 @@ public class ScanActivity extends Activity implements IScanner, ComponentCallbac
         fragmentTransaction.add(R.id.content, fragment);
         fragmentTransaction.addToBackStack(ScanFragment.class.toString());
         fragmentTransaction.commit();
+
+        Log.e("test","ScanActivity >> last onBitmapSelect");
     }
 
     @Override
     public void onScanFinish(Uri uri) {
+        Log.e("test","ScanActivity >> onScanFinish");
+
         ResultFragment fragment = new ResultFragment();
         Bundle bundle = new Bundle();
         bundle.putParcelable(ScanConstants.SCANNED_RESULT, uri);
@@ -59,6 +70,8 @@ public class ScanActivity extends Activity implements IScanner, ComponentCallbac
         fragmentTransaction.add(R.id.content, fragment);
         fragmentTransaction.addToBackStack(ResultFragment.class.toString());
         fragmentTransaction.commit();
+
+        Log.e("test","ScanActivity >> last onScanFinish");
     }
 
     @Override

@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 
 import com.scanlibrary.ScanConstants;
 
@@ -45,6 +46,8 @@ public class MainActivity extends AppCompatActivity {
             android.net.Uri uri = data.getExtras().getParcelable(ScanConstants.SCANNED_RESULT);
             android.graphics.Bitmap bitmap = null;
             try {
+                Log.e("test", "MainActivity.java >> onActivityResult");
+
                 bitmap = android.provider.MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
                 getContentResolver().delete(uri, null, null);
             //    scannedImageView.setImageBitmap(bitmap);
