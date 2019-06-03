@@ -18,6 +18,17 @@ import android.widget.Toast;
 
 import java.io.IOException;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 /**
  * Created by jhansi on 29/03/15.
  */
@@ -34,6 +45,8 @@ public class ResultFragment extends Fragment {
     private Button bwButton;
     private Bitmap transformed;
     private static ProgressDialogFragment progressDialogFragment;
+
+    private RequestQueue mQueue;
 
     public ResultFragment() {
     }
@@ -62,6 +75,8 @@ public class ResultFragment extends Fragment {
         //Send Button
         sendButton = (Button) view.findViewById(R.id.sendButton);
         sendButton.setOnClickListener(new SendButtonClickListener());
+
+        mQueue =  Volley.newRequestQueue(getActivity().getApplicationContext());
     }
 
     private Bitmap getBitmap() {
@@ -132,6 +147,9 @@ public class ResultFragment extends Fragment {
 
                     try {
                         Log.e("test", "Send good image to Server...");
+                        //getHello();
+                        sendImage();
+                        Log.e("test","SendButtonClickListener try Xu ly xon Hello...");
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -239,7 +257,9 @@ public class ResultFragment extends Fragment {
                 @Override
                 public void run() {
                     try {
+                        Log.e("test","GrayButtonClickListene try Buoc vao...");
                         transformed = ((ScanActivity) getActivity()).getGrayBitmap(original);
+                        Log.e("test","GrayButtonClickListene try Xu ly transformed...");
                     } catch (final OutOfMemoryError e) {
                         getActivity().runOnUiThread(new Runnable() {
                             @Override
@@ -255,6 +275,7 @@ public class ResultFragment extends Fragment {
                     getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
+                            Log.e("test","GrayButtonClickListene getActivity() Buoc vao...");
                             scannedImageView.setImageBitmap(transformed);
                             dismissDialog();
                         }
@@ -277,5 +298,53 @@ public class ResultFragment extends Fragment {
 
     protected synchronized void dismissDialog() {
         progressDialogFragment.dismissAllowingStateLoss();
+    }
+
+    private void getHello() {
+
+        String url = "https://5a6cc0b1.ngrok.io";
+
+        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, null,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        try {
+                            String result = response.getString("result");
+                            Log.e("test", "GetHello received: " + result);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                error.printStackTrace();
+            }
+        });
+        mQueue.add(request);
+    }
+
+    private void sendImage() {
+
+        String url = "https://5a6cc0b1.ngrok.io/api/test";
+
+        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, null,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        try {
+                            String result = response.getString("result");
+                            Log.e("test", "GetHello received: " + result);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                error.printStackTrace();
+            }
+        });
+        mQueue.add(request);
     }
 }
