@@ -26,6 +26,7 @@ public class ResultFragment extends Fragment {
     private View view;
     private ImageView scannedImageView;
     private Button doneButton;
+    private Button sendButton;
     private Bitmap original;
     private Button originalButton;
     private Button MagicColorButton;
@@ -58,6 +59,9 @@ public class ResultFragment extends Fragment {
         setScannedImage(bitmap);
         doneButton = (Button) view.findViewById(R.id.doneButton);
         doneButton.setOnClickListener(new DoneButtonClickListener());
+        //Send Button
+        sendButton = (Button) view.findViewById(R.id.sendButton);
+        sendButton.setOnClickListener(new SendButtonClickListener());
     }
 
     private Bitmap getBitmap() {
@@ -114,6 +118,35 @@ public class ResultFragment extends Fragment {
                     }
                 }
             });
+        }
+    }
+
+    private class SendButtonClickListener implements View.OnClickListener {
+        @Override
+        public void onClick(View v) {
+            showProgressDialog("Sending...");
+
+            AsyncTask.execute(new Runnable() {
+                @Override
+                public void run() {
+
+                    try {
+                        Log.e("test", "Send good image to Server...");
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+
+                            Log.e("test","Lay ket qua tu server...");
+                            dismissDialog();
+                        }
+                    });
+                }
+            });
+
         }
     }
 
