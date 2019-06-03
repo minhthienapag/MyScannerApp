@@ -55,9 +55,10 @@
             android:textColor="@android:color/white" />
     </LinearLayout>
 
+
     <Button
         android:id="@+id/doneButton"
-        android:layout_width="fill_parent"
+        android:layout_width="200dp"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:background="@color/bottom_background_color"
@@ -65,6 +66,20 @@
         android:padding="@dimen/bottom_bar_padding"
         android:text="@string/done" />
 
+    <Button
+        android:id="@+id/sendButton"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginEnd="2dp"
+        android:layout_marginBottom="0dp"
+        android:background="@color/bottom_background_color"
+        android:orientation="horizontal"
+        android:padding="@dimen/bottom_bar_padding"
+        android:text="SEND SERVER"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="2dp" />
 
     <FrameLayout
         android:layout_width="match_parent"
