@@ -3,11 +3,13 @@ package com.scanlibrary;
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,16 +20,24 @@ import android.widget.Toast;
 
 import java.io.IOException;
 
+import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.io.ByteArrayOutputStream;
+import java.util.HashMap;
+import java.util.Map;
+
+import static android.provider.ContactsContract.CommonDataKinds.Website.URL;
 
 /**
  * Created by jhansi on 29/03/15.
@@ -47,6 +57,8 @@ public class ResultFragment extends Fragment {
     private static ProgressDialogFragment progressDialogFragment;
 
     private RequestQueue mQueue;
+    ProgressDialog progressDialog;
+    String URL ="https://d826a824.ngrok.io/api/test";
 
     public ResultFragment() {
     }
@@ -135,38 +147,74 @@ public class ResultFragment extends Fragment {
             });
         }
     }
-
+    //getActivity().getApplicationContext()           SendButtonClickListener
+    //
     private class SendButtonClickListener implements View.OnClickListener {
         @Override
         public void onClick(View v) {
-            showProgressDialog("Sending...");
+            progressDialog = new ProgressDialog(getActivity());
+            progressDialog.setMessage("Uploading, please wait...");
+            progressDialog.show();
 
-            AsyncTask.execute(new Runnable() {
+            //converting image to base64 string
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            Bitmap bitmap = transformed;
+            if (bitmap == null)
+            {
+                bitmap = original;
+            }
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+            byte[] imageBytes = baos.toByteArray();
+            final String imageString = Base64.encodeToString(imageBytes, Base64.DEFAULT);
+            //Log.e("test","base64 string: " + imageString);
+            //sending image to server
+            StringRequest request = new StringRequest(Request.Method.POST, URL, new Response.Listener<String>(){
                 @Override
-                public void run() {
-
-                    try {
-                        Log.e("test", "Send good image to Server...");
-                        //getHello();
-                        sendImage();
-                        Log.e("test","SendButtonClickListener try Xu ly xon Hello...");
-                    } catch (Exception e) {
-                        e.printStackTrace();
+                public void onResponse(String s) {
+                    progressDialog.dismiss();
+                    if(s.equals("true")){
+                        Toast.makeText(getActivity(), "Uploaded Successful", Toast.LENGTH_LONG).show();
                     }
+                    else{
+                        //Map<String, String> properties = Splitter.on(",").withKeyValueSeparator(":").split(s);
+                        Log.e("test",s);
 
-                    getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-
-                            Log.e("test","Lay ket qua tu server...");
-                            dismissDialog();
+                        try {
+                            JSONObject jsonObj = new JSONObject(s);
+                            String text = jsonObj.getString("transtext");
+                            Toast.makeText(getActivity()  , text, Toast.LENGTH_LONG).show();
+                            Log.e("test", text);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
                         }
-                    });
-                }
-            });
 
+
+
+                    }
+                }
+            },new Response.ErrorListener(){
+                @Override
+                public void onErrorResponse(VolleyError volleyError) {
+                    Toast.makeText(getActivity() , "Some error occurred -> "+volleyError, Toast.LENGTH_LONG).show();;
+                }
+            }) {
+                //adding parameters to send
+                @Override
+                protected Map<String, String> getParams() throws AuthFailureError {
+                    Map<String, String> parameters = new HashMap<String, String>();
+                    parameters.put("image", imageString);
+                    return parameters;
+                }
+            };
+
+            RequestQueue rQueue = Volley.newRequestQueue(getActivity());
+            rQueue.add(request);
         }
     }
+
+
+
+
 
     private class BWButtonClickListener implements View.OnClickListener {
         @Override
