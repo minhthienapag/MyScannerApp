@@ -6,6 +6,7 @@ import android.app.FragmentManager;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Matrix;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -60,6 +61,8 @@ public class ResultFragment extends Fragment {
     private RequestQueue mQueue;
     ProgressDialog progressDialog;
     String URL ="https://d826a824.ngrok.io/api/test";
+    private Button rotateLeftButton;
+    private Button rotateRightButton;
 
     public ResultFragment() {
     }
@@ -88,6 +91,11 @@ public class ResultFragment extends Fragment {
         //Send Button
         sendButton = (Button) view.findViewById(R.id.sendButton);
         sendButton.setOnClickListener(new SendButtonClickListener());
+        //Rotate Left Button
+        rotateLeftButton = (Button) view.findViewById(R.id.rotateLeft);
+        rotateLeftButton.setOnClickListener(new RotateLeftButtonClickListener());
+        rotateRightButton = (Button) view.findViewById(R.id.rotateRight);
+        rotateRightButton.setOnClickListener(new RotateRightButtonClickListener());
 
         mQueue =  Volley.newRequestQueue(getActivity().getApplicationContext());
     }
@@ -165,7 +173,7 @@ public class ResultFragment extends Fragment {
                 bitmap = original;
             }
             //resize truoc khi gui server
-            bitmap = Bitmap.createScaledBitmap(bitmap, 500, 500, true);
+            //bitmap = Bitmap.createScaledBitmap(bitmap, 500, 500, true);
 
             bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
             byte[] imageBytes = baos.toByteArray();
@@ -180,9 +188,7 @@ public class ResultFragment extends Fragment {
                         Toast.makeText(getActivity(), "Uploaded Successful", Toast.LENGTH_LONG).show();
                     }
                     else{
-                        //Map<String, String> properties = Splitter.on(",").withKeyValueSeparator(":").split(s);
-                        Log.e("test",s);
-
+                        //Log.e("test",s);
                         try {
                             JSONObject jsonObj = new JSONObject(s);
                             String text = jsonObj.getString("transtext");
@@ -191,9 +197,6 @@ public class ResultFragment extends Fragment {
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
-
-
-
                     }
                 }
             },new Response.ErrorListener(){
@@ -214,7 +217,7 @@ public class ResultFragment extends Fragment {
 
             RequestQueue rQueue = Volley.newRequestQueue(getActivity());
             // Set time lon hon de tranh bi volley Timeout Error
-            request.setRetryPolicy(new DefaultRetryPolicy( 15000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+            request.setRetryPolicy(new DefaultRetryPolicy( 20000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
             rQueue.add(request);
         }
     }
@@ -354,6 +357,85 @@ public class ResultFragment extends Fragment {
     protected synchronized void dismissDialog() {
         progressDialogFragment.dismissAllowingStateLoss();
     }
+
+    private class RotateLeftButtonClickListener implements View.OnClickListener {
+        @Override
+        public void onClick(final View v) {
+            showProgressDialog(getResources().getString(R.string.applying_filter));
+            AsyncTask.execute(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        Matrix matrix = new Matrix();
+                        matrix.postRotate(-90);
+                        Bitmap scaledBitmap = Bitmap.createScaledBitmap(original, original.getWidth(), original.getHeight(), true);
+                        transformed = Bitmap.createBitmap(scaledBitmap, 0, 0, scaledBitmap.getWidth(), scaledBitmap.getHeight(), matrix, true);
+                        Log.e("test","Rotate Left");
+                    } catch (final OutOfMemoryError e) {
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                transformed = original;
+                                scannedImageView.setImageBitmap(original);
+                                e.printStackTrace();
+                                dismissDialog();
+                                onClick(v);
+                            }
+                        });
+                    }
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            scannedImageView.setImageBitmap(transformed);
+                            original = transformed;
+                            dismissDialog();
+                        }
+                    });
+                }
+            });
+        }
+    }
+
+    private class RotateRightButtonClickListener implements View.OnClickListener {
+        @Override
+        public void onClick(final View v) {
+            showProgressDialog(getResources().getString(R.string.applying_filter));
+            AsyncTask.execute(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        Matrix matrix = new Matrix();
+                        matrix.postRotate(90);
+                        Bitmap scaledBitmap = Bitmap.createScaledBitmap(original, original.getWidth(), original.getHeight(), true);
+                        transformed = Bitmap.createBitmap(scaledBitmap, 0, 0, scaledBitmap.getWidth(), scaledBitmap.getHeight(), matrix, true);
+                        Log.e("test","Rotate Right");
+                    } catch (final OutOfMemoryError e) {
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                transformed = original;
+                                scannedImageView.setImageBitmap(original);
+                                e.printStackTrace();
+                                dismissDialog();
+                                onClick(v);
+                            }
+                        });
+                    }
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            scannedImageView.setImageBitmap(transformed);
+                            original = transformed;
+                            dismissDialog();
+                        }
+                    });
+                }
+            });
+        }
+    }
+
+
+
 
     private void getHello() {
 
