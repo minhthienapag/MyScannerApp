@@ -21,6 +21,7 @@ import android.widget.Toast;
 import java.io.IOException;
 
 import com.android.volley.AuthFailureError;
+import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -163,6 +164,9 @@ public class ResultFragment extends Fragment {
             {
                 bitmap = original;
             }
+            //resize truoc khi gui server
+            bitmap = Bitmap.createScaledBitmap(bitmap, 500, 500, true);
+
             bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
             byte[] imageBytes = baos.toByteArray();
             final String imageString = Base64.encodeToString(imageBytes, Base64.DEFAULT);
@@ -202,12 +206,15 @@ public class ResultFragment extends Fragment {
                 @Override
                 protected Map<String, String> getParams() throws AuthFailureError {
                     Map<String, String> parameters = new HashMap<String, String>();
+
                     parameters.put("image", imageString);
                     return parameters;
                 }
             };
 
             RequestQueue rQueue = Volley.newRequestQueue(getActivity());
+            // Set time lon hon de tranh bi volley Timeout Error
+            request.setRetryPolicy(new DefaultRetryPolicy( 15000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
             rQueue.add(request);
         }
     }
